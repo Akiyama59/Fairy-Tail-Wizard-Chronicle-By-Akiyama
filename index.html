@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Fairy Tail MOBA Guide</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h1>Fairy Tail MOBA Guide</h1>
+</header>
+
+<div class="container">
+  <nav>
+    <button onclick="showPage('tier')">Tier List</button>
+    <button onclick="showPage('teams')">Teams</button>
+    <button onclick="showPage('characters')">Characters</button>
+  </nav>
+
+  <main>
+    <section id="tier">
+      <h2>Tier List</h2>
+      <div class="buttons">
+        <button onclick="setMode('pvp')">PvP</button>
+        <button onclick="setMode('pvm')">PvM</button>
+      </div>
+      <div id="list"></div>
+    </section>
+
+    <section id="teams" class="hidden">
+      <h2>Best Teams</h2>
+      <div class="card">PvP: Natsu / Erza / Wendy</div>
+      <div class="card">PvM: Erza / Wendy / Gray</div>
+    </section>
+
+    <section id="characters" class="hidden">
+      <h2>Characters</h2>
+      <div id="chars"></div>
+    </section>
+  </main>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
