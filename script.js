@@ -1,135 +1,135 @@
-import { useState, useEffect } from "react";
+// Simple Next.js (App Router) project for Vercel
+// Features:
+// - Tier list builder
+// - Team composition (PVP / PVM)
+// - Admin page to upload characters (local state demo)
 
-export default function App() {
-  const [characters, setCharacters] = useState([]);
-  const [page, setPage] = useState("tier");
-  const [mode, setMode] = useState("pvp");
-  const [isAdmin, setIsAdmin] = useState(false);
+// To use:
+// 1. npx create-next-app@latest fairy-tail-tierlist
+// 2. Replace /app/page.tsx with this file
+// 3. Add other pages as shown below
+// 4. Deploy on Vercel
 
-  const [newChar, setNewChar] = useState({
-    name: "",
-    role: "",
-    image: "",
-    pvp: "A",
-    pvm: "A",
-  });
+'use client'
 
-  useEffect(() => {
-    const saved = localStorage.getItem("characters");
-    if (saved) setCharacters(JSON.parse(saved));
-  }, []);
+import { useState } from 'react'
 
-  useEffect(() => {
-    localStorage.setItem("characters", JSON.stringify(characters));
-  }, [characters]);
+const initialCharacters = [
+  { id: 1, name: 'Natsu', image: '' },
+  { id: 2, name: 'Lucy', image: '' },
+]
 
-  const loginAdmin = () => {
-    const pass = prompt("Mot de passe admin ?");
-    if (pass === "admin123") setIsAdmin(true);
-    else alert("Mauvais mot de passe");
-  };
+export default function Home() {
+  const [characters, setCharacters] = useState(initialCharacters)
+  const [tiers, setTiers] = useState({ S: [], A: [], B: [] })
+  const [team, setTeam] = useState([])
 
-  const handleImage = (e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onload = () => {
-      setNewChar({ ...newChar, image: reader.result });
-    };
-    reader.readAsDataURL(file);
-  };
+  const addToTier = (char, tier) => {
+    setTiers(prev => ({
+      ...prev,
+      [tier]: [...prev[tier], char]
+    }))
+  }
 
-  const addChar = () => {
-    if (!newChar.name) return;
-    setCharacters([...characters, newChar]);
-    setNewChar({ name: "", role: "", image: "", pvp: "A", pvm: "A" });
-  };
+  const addToTeam = (char) => {
+    if (team.length < 5) {
+      setTeam([...team, char])
+    }
+  }
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="p-6 grid gap-6">
+      <h1 className="text-2xl font-bold">Fairy Tail Tier List Builder</h1>
 
-      {/* MENU */}
-      <div className="w-64 bg-white p-4 shadow">
-        <h1 className="font-bold mb-4">Fairy Tail Guide</h1>
-
-        <button onClick={() => setPage("tier")} className="block mb-2">Tier List</button>
-        <button onClick={() => setPage("characters")} className="block mb-2">Characters</button>
-
-        <button onClick={loginAdmin} className="mt-4 bg-black text-white w-full p-2">
-          Admin Login
-        </button>
-
-        {isAdmin && (
-          <button onClick={() => setPage("admin")} className="mt-2 text-red-500">
-            Admin Panel
-          </button>
-        )}
+      {/* Characters */}
+      <div>
+        <h2 className="text-xl">Personnages</h2>
+        <div className="flex gap-2 flex-wrap">
+          {characters.map(c => (
+            <div key={c.id} className="border p-2 rounded">
+              <p>{c.name}</p>
+              <div className="flex gap-1 mt-2">
+                <button onClick={() => addToTier(c, 'S')}>S</button>
+                <button onClick={() => addToTier(c, 'A')}>A</button>
+                <button onClick={() => addToTier(c, 'B')}>B</button>
+                <button onClick={() => addToTeam(c)}>Team</button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* CONTENT */}
-      <div className="flex-1 p-6">
-
-        {/* TIER */}
-        {page === "tier" && (
-          <>
-            <h2 className="text-2xl font-bold">Tier List</h2>
-
-            <button onClick={() => setMode("pvp")}>PvP</button>
-            <button onClick={() => setMode("pvm")}>PvM</button>
-
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              {characters.map((c, i) => (
-                <div key={i} className="bg-white p-4">
-                  {c.image && <img src={c.image} className="w-20 h-20" />}
-                  <p>{c.name}</p>
-                  <p>{mode === "pvp" ? c.pvp : c.pvm}</p>
-                </div>
+      {/* Tier List */}
+      <div>
+        <h2 className="text-xl">Tier List</h2>
+        {Object.keys(tiers).map(tier => (
+          <div key={tier} className="mb-2">
+            <h3>{tier}</h3>
+            <div className="flex gap-2">
+              {tiers[tier].map(c => (
+                <span key={c.id}>{c.name}</span>
               ))}
             </div>
-          </>
-        )}
+          </div>
+        ))}
+      </div>
 
-        {/* CHARACTERS */}
-        {page === "characters" && (
-          <>
-            <h2 className="text-2xl font-bold">Characters</h2>
-            {characters.map((c, i) => (
-              <div key={i} className="bg-white p-4">
-                {c.image && <img src={c.image} className="w-16 h-16" />}
-                <p>{c.name}</p>
-                <p>{c.role}</p>
-              </div>
-            ))}
-          </>
-        )}
-
-        {/* ADMIN */}
-        {page === "admin" && isAdmin && (
-          <>
-            <h2 className="text-2xl font-bold">Admin Panel</h2>
-
-            <input
-              placeholder="Name"
-              value={newChar.name}
-              onChange={(e) => setNewChar({ ...newChar, name: e.target.value })}
-              className="border p-2 block mb-2"
-            />
-
-            <input
-              placeholder="Role"
-              value={newChar.role}
-              onChange={(e) => setNewChar({ ...newChar, role: e.target.value })}
-              className="border p-2 block mb-2"
-            />
-
-            <input type="file" onChange={handleImage} />
-
-            <button onClick={addChar} className="bg-blue-500 text-white p-2 mt-2">
-              Add
-            </button>
-          </>
-        )}
-
+      {/* Team Builder */}
+      <div>
+        <h2 className="text-xl">Equipe (PVP / PVM)</h2>
+        <div className="flex gap-2">
+          {team.map(c => (
+            <span key={c.id}>{c.name}</span>
+          ))}
+        </div>
       </div>
     </div>
-  );
+  )
 }
+
+// --- Admin Page Example ---
+// Create /app/admin/page.tsx
+
+/*
+'use client'
+
+import { useState } from 'react'
+
+export default function Admin() {
+  const [name, setName] = useState('')
+  const [image, setImage] = useState('')
+
+  const handleAdd = () => {
+    console.log({ name, image })
+    alert('Saved (connect to DB later)')
+  }
+
+  return (
+    <div className="p-6">
+      <h1 className="text-xl font-bold">Admin</h1>
+
+      <input
+        placeholder="Nom du personnage"
+        value={name}
+        onChange={e => setName(e.target.value)}
+        className="border p-2 block mb-2"
+      />
+
+      <input
+        placeholder="URL image"
+        value={image}
+        onChange={e => setImage(e.target.value)}
+        className="border p-2 block mb-2"
+      />
+
+      <button onClick={handleAdd}>Ajouter</button>
+    </div>
+  )
+}
+*/
+
+// --- Improvements to add later ---
+// - Drag & drop (react-beautiful-dnd)
+// - Database (Firebase / Supabase)
+// - Auth admin (NextAuth)
+// - Image upload (Cloudinary)
