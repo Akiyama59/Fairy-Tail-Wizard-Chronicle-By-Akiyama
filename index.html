@@ -38,14 +38,63 @@ img { width:60px; display:block; }
   </div>
 
   <!-- ADMIN -->
-  <div id="admin" class="hidden">
-    <h2>Admin</h2>
+<section id="admin" class="hidden">
+  <h2>Admin</h2>
+
+  <div id="loginBox">
+    <input id="password" placeholder="Mot de passe">
+    <button onclick="login()">Connexion</button>
+  </div>
+
+  <div id="adminPanel" class="hidden">
+    <h3>Ajouter personnage</h3>
+
     <input id="name" placeholder="Nom">
     <input id="image" placeholder="URL image">
     <button onclick="addChar()">Ajouter</button>
   </div>
-</div>
+</section>
 
+let isAdmin = false;
+const ADMIN_PASSWORD = "1234"; // change ça !
+
+function login(){
+  const pass = document.getElementById("password").value;
+
+  if(pass === ADMIN_PASSWORD){
+    isAdmin = true;
+    document.getElementById("loginBox").classList.add("hidden");
+    document.getElementById("adminPanel").classList.remove("hidden");
+  } else {
+    alert("Mauvais mot de passe");
+  }
+}
+
+function addChar(){
+  if(!isAdmin) return alert("Accès refusé");
+
+  const name=document.getElementById('name').value;
+  const image=document.getElementById('image').value;
+
+  if(!name) return alert('Nom requis');
+
+  chars.push({name,image});
+  save();
+  render();
+}
+
+function deleteChar(index){
+  if(!isAdmin) return alert("Accès refusé");
+
+  if(!confirm("Supprimer ?")) return;
+
+  chars.splice(index,1);
+  save();
+  render();
+}
+
+${isAdmin ? `<button onclick="deleteChar(${i})">❌</button>` : ""}
+  
 <script>
 let chars = JSON.parse(localStorage.getItem('chars')) || [
   {name:'Natsu', image:''},
