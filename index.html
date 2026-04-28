@@ -2,65 +2,113 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Fairy Tail MOBA Guide</title>
-<link rel="stylesheet" href="style.css">
+<title>Fairy Tail Tier List PRO</title>
+<style>
+body { font-family: Arial; background:#0b0f1a; color:white; }
+.container { padding:20px; }
+.tier { margin-bottom:20px; padding:10px; border:1px solid #444; }
+.character { padding:5px; margin:5px; background:#1a2238; cursor:grab; display:inline-block; }
+.hidden { display:none; }
+img { width:60px; display:block; }
+</style>
 </head>
 <body>
 
-<header>
-  <h1>Fairy Tail Wizard Chronicle - Tier List</h1>
-</header>
-
 <div class="container">
-  <nav>
-    <button onclick="showPage('tier')">Tier List</button>
-    <button onclick="showPage('teams')">Teams</button>
-    <button onclick="showPage('characters')">Characters</button>
-    <button onclick="showPage('admin')">Admin</button>
-  </nav>
+  <h1>🔥 Fairy Tail Tier List PRO</h1>
 
-  <main>
+  <button onclick="show('tier')">Tier List</button>
+  <button onclick="show('admin')">Admin</button>
 
-    <!-- TIER LIST -->
-    <section id="tier">
-      <h2>Tier List</h2>
-      <button onclick="setMode('pvp')">PvP</button>
-      <button onclick="setMode('pvm')">PvM</button>
-      <div id="list"></div>
-    </section>
+  <!-- TIER -->
+  <div id="tier">
+    <h2>Drag & Drop Tier List</h2>
+    <div class="tier" ondrop="drop(event,'S')" ondragover="allowDrop(event)">
+      <h3>S</h3><div id="S"></div>
+    </div>
+    <div class="tier" ondrop="drop(event,'A')" ondragover="allowDrop(event)">
+      <h3>A</h3><div id="A"></div>
+    </div>
+    <div class="tier" ondrop="drop(event,'B')" ondragover="allowDrop(event)">
+      <h3>B</h3><div id="B"></div>
+    </div>
 
-    <!-- TEAMS -->
-    <section id="teams" class="hidden">
-      <h2>Best Teams</h2>
-      <div class="card">PvP: Natsu / Erza / Wendy</div>
-      <div class="card">PvM: Erza / Wendy / Gray</div>
-    </section>
+    <h3>Characters</h3>
+    <div id="pool"></div>
+  </div>
 
-    <!-- CHARACTERS -->
-    <section id="characters" class="hidden">
-      <h2>Characters</h2>
-      <div id="chars"></div>
-    </section>
-
-    <!-- ADMIN -->
-    <section id="admin" class="hidden">
-      <h2>Admin - Ajouter personnage</h2>
-
-      <input id="name" placeholder="Nom du personnage">
-      <input id="image" placeholder="URL image">
-      <select id="pvp">
-        <option>S</option><option>A</option><option>B</option>
-      </select>
-      <select id="pvm">
-        <option>S</option><option>A</option><option>B</option>
-      </select>
-
-      <button onclick="addCharacter()">Ajouter</button>
-    </section>
-
-  </main>
+  <!-- ADMIN -->
+  <div id="admin" class="hidden">
+    <h2>Admin</h2>
+    <input id="name" placeholder="Nom">
+    <input id="image" placeholder="URL image">
+    <button onclick="addChar()">Ajouter</button>
+  </div>
 </div>
 
-<script src="script.js"></script>
+<script>
+let chars = JSON.parse(localStorage.getItem('chars')) || [
+  {name:'Natsu', image:''},
+  {name:'Lucy', image:''}
+];
+
+function save(){
+  localStorage.setItem('chars', JSON.stringify(chars));
+}
+
+function show(id){
+  document.getElementById('tier').classList.add('hidden');
+  document.getElementById('admin').classList.add('hidden');
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function render(){
+  const pool = document.getElementById('pool');
+  pool.innerHTML='';
+
+  chars.forEach((c,i)=>{
+    const div=document.createElement('div');
+    div.className='character';
+    div.draggable=true;
+    div.ondragstart=(e)=>e.dataTransfer.setData('id',i);
+
+    div.innerHTML=`
+      ${c.image ? `<img src="${c.image}">` : ''}
+      ${c.name}
+    `;
+
+    pool.appendChild(div);
+  });
+}
+
+function allowDrop(e){ e.preventDefault(); }
+
+function drop(e,tier){
+  e.preventDefault();
+  const id=e.dataTransfer.getData('id');
+  const c=chars[id];
+
+  const div=document.createElement('div');
+  div.className='character';
+  div.innerHTML=`${c.image ? `<img src="${c.image}">` : ''}${c.name}`;
+
+  document.getElementById(tier).appendChild(div);
+}
+
+function addChar(){
+  const name=document.getElementById('name').value;
+  const image=document.getElementById('image').value;
+
+  if(!name) return alert('Nom requis');
+
+  chars.push({name,image});
+  save();
+  render();
+}
+
+render();
+</script>
+
 </body>
 </html>
+
