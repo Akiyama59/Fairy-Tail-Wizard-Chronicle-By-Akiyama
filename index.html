@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Fairy Tail Tier List PRO</title>
+
 <style>
 body { font-family: Arial; background:#0b0f1a; color:white; }
 .container { padding:20px; }
@@ -11,6 +12,7 @@ body { font-family: Arial; background:#0b0f1a; color:white; }
 .hidden { display:none; }
 img { width:60px; display:block; }
 </style>
+
 </head>
 <body>
 
@@ -23,12 +25,15 @@ img { width:60px; display:block; }
   <!-- TIER -->
   <div id="tier">
     <h2>Drag & Drop Tier List</h2>
+
     <div class="tier" ondrop="drop(event,'S')" ondragover="allowDrop(event)">
       <h3>S</h3><div id="S"></div>
     </div>
+
     <div class="tier" ondrop="drop(event,'A')" ondragover="allowDrop(event)">
       <h3>A</h3><div id="A"></div>
     </div>
+
     <div class="tier" ondrop="drop(event,'B')" ondragover="allowDrop(event)">
       <h3>B</h3><div id="B"></div>
     </div>
@@ -38,38 +43,87 @@ img { width:60px; display:block; }
   </div>
 
   <!-- ADMIN -->
-<section id="admin" class="hidden">
-  <h2>Admin</h2>
+  <div id="admin" class="hidden">
+    <h2>Admin</h2>
 
-  <div id="loginBox">
     <input id="password" placeholder="Mot de passe">
     <button onclick="login()">Connexion</button>
+
+    <div id="adminPanel" class="hidden">
+      <input id="name" placeholder="Nom">
+      <input id="image" placeholder="URL image">
+      <button onclick="addChar()">Ajouter</button>
+    </div>
   </div>
 
-  <div id="adminPanel" class="hidden">
-    <h3>Ajouter personnage</h3>
+</div>
 
-    <input id="name" placeholder="Nom">
-    <input id="image" placeholder="URL image">
-    <button onclick="addChar()">Ajouter</button>
-  </div>
-</section>
+<script>
+let chars = JSON.parse(localStorage.getItem('chars')) || [
+  {name:'Natsu', image:''},
+  {name:'Lucy', image:''}
+];
 
 let isAdmin = false;
-const ADMIN_PASSWORD = "1234"; // change ça !
+const ADMIN_PASSWORD = "1234";
 
+// LOGIN
 function login(){
   const pass = document.getElementById("password").value;
 
   if(pass === ADMIN_PASSWORD){
     isAdmin = true;
-    document.getElementById("loginBox").classList.add("hidden");
     document.getElementById("adminPanel").classList.remove("hidden");
   } else {
     alert("Mauvais mot de passe");
   }
 }
 
+// SAVE
+function save(){
+  localStorage.setItem('chars', JSON.stringify(chars));
+}
+
+// NAV
+function show(id){
+  document.getElementById('tier').classList.add('hidden');
+  document.getElementById('admin').classList.add('hidden');
+  document.getElementById(id).classList.remove('hidden');
+}
+
+// RENDER
+function render(){
+  const pool = document.getElementById('pool');
+  pool.innerHTML='';
+
+  chars.forEach((c,i)=>{
+    const div=document.createElement('div');
+    div.className='character';
+    div.draggable=true;
+    div.ondragstart=(e)=>e.dataTransfer.setData('id',i);
+
+    div.innerHTML = `
+      ${c.image ? `<img src="${c.image}">` : ''}
+      ${c.name}
+      ${isAdmin ? `<br><button onclick="deleteChar(${i})">❌</button>` : ''}
+    `;
+
+    pool.appendChild(div);
+  });
+}
+
+// DELETE
+function deleteChar(index){
+  if(!isAdmin) return alert("Accès refusé");
+
+  if(!confirm("Supprimer ?")) return;
+
+  chars.splice(index,1);
+  save();
+  render();
+}
+
+// ADD
 function addChar(){
   if(!isAdmin) return alert("Accès refusé");
 
@@ -83,63 +137,7 @@ function addChar(){
   render();
 }
 
-function deleteChar(index){
-  if(!isAdmin) return alert("Accès refusé");
-
-  if(!confirm("Supprimer ?")) return;
-
-  chars.splice(index,1);
-  save();
-  render();
-}
-
-${isAdmin ? `<button onclick="deleteChar(${i})">❌</button>` : ""}
-  
-<script>
-let chars = JSON.parse(localStorage.getItem('chars')) || [
-  {name:'Natsu', image:''},
-  {name:'Lucy', image:''}
-];
-
-function save(){
-  localStorage.setItem('chars', JSON.stringify(chars));
-}
-
-function show(id){
-  document.getElementById('tier').classList.add('hidden');
-  document.getElementById('admin').classList.add('hidden');
-  document.getElementById(id).classList.remove('hidden');
-}
-
-function render(){
-  const pool = document.getElementById('pool');
-  pool.innerHTML='';
-
-  chars.forEach((c,i)=>{
-    const div=document.createElement('div');
-    div.className='character';
-    div.draggable=true;
-    div.ondragstart=(e)=>e.dataTransfer.setData('id',i);
-
-    div.innerHTML=`
-      ${c.image ? `<img src="${c.image}">` : ''}
-      ${c.name}
-      <br>
-      <button onclick="deleteChar(${i})">❌</button>
-    `;
-
-    pool.appendChild(div);
-  });
-}
-
-function deleteChar(index){
-  if(!confirm("Supprimer ce personnage ?")) return;
-
-  chars.splice(index,1);
-  save();
-  render();
-}
-  
+// DRAG
 function allowDrop(e){ e.preventDefault(); }
 
 function drop(e,tier){
@@ -154,23 +152,9 @@ function drop(e,tier){
   document.getElementById(tier).appendChild(div);
 }
 
-function addChar(){
-  const name=document.getElementById('name').value;
-  const image=document.getElementById('image').value;
-
-  if(!name) return alert('Nom requis');
-
-  chars.push({name,image});
-  save();
-  render();
-}
-
+// INIT
 render();
 </script>
 
 </body>
 </html>
-
-<button onclick="login()">Login Admin</button>
-<button onclick="addChar()">Ajouter perso</button>
-<div id="pool"></div>
