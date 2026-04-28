@@ -1,53 +1,78 @@
-const characters = [
-  { id: 1, name: "Natsu" },
-  { id: 2, name: "Lucy" }
+let characters = JSON.parse(localStorage.getItem("chars")) || [
+  { name: "Natsu", pvp: "S", pvm: "A", image: "" },
+  { name: "Lucy", pvp: "A", pvm: "S", image: "" }
 ];
 
-const tiers = { S: [], A: [], B: [] };
-let team = [];
+let mode = "pvp";
 
-const charactersDiv = document.getElementById("characters");
-const tierDiv = document.getElementById("tiers");
-const teamDiv = document.getElementById("team");
+// NAVIGATION
+function showPage(page) {
+  document.querySelectorAll("section").forEach(s => s.classList.add("hidden"));
+  document.getElementById(page).classList.remove("hidden");
+}
 
-function render() {
-  // Characters
-  charactersDiv.innerHTML = "";
+// MODE
+function setMode(m) {
+  mode = m;
+  renderTier();
+}
+
+// TIER LIST
+function renderTier() {
+  const list = document.getElementById("list");
+  list.innerHTML = "";
+
+  const tiers = { S: [], A: [], B: [] };
+
+  characters.forEach(c => {
+    tiers[c[mode]].push(c.name);
+  });
+
+  for (let t in tiers) {
+    const div = document.createElement("div");
+    div.innerHTML = `<h3>${t}</h3> ${tiers[t].join(" / ")}`;
+    list.appendChild(div);
+  }
+}
+
+// CHARACTERS
+function renderCharacters() {
+  const chars = document.getElementById("chars");
+  chars.innerHTML = "";
+
   characters.forEach(c => {
     const div = document.createElement("div");
+    div.className = "card";
+
     div.innerHTML = `
-      <p>${c.name}</p>
-      <button onclick="addToTier(${c.id}, 'S')">S</button>
-      <button onclick="addToTier(${c.id}, 'A')">A</button>
-      <button onclick="addToTier(${c.id}, 'B')">B</button>
-      <button onclick="addToTeam(${c.id})">Team</button>
+      <strong>${c.name}</strong><br>
+      PvP: ${c.pvp} | PvM: ${c.pvm}<br>
+      ${c.image ? `<img src="${c.image}" width="100">` : ""}
     `;
-    charactersDiv.appendChild(div);
+
+    chars.appendChild(div);
   });
-
-  // Tiers
-  tierDiv.innerHTML = "";
-  Object.keys(tiers).forEach(t => {
-    const div = document.createElement("div");
-    div.innerHTML = `<h3>${t}</h3> ${tiers[t].map(c => c.name).join(", ")}`;
-    tierDiv.appendChild(div);
-  });
-
-  // Team
-  teamDiv.innerHTML = team.map(c => c.name).join(", ");
 }
 
-function addToTier(id, tier) {
-  const char = characters.find(c => c.id === id);
-  tiers[tier].push(char);
-  render();
+// ADMIN
+function addCharacter() {
+  const name = document.getElementById("name").value;
+  const image = document.getElementById("image").value;
+  const pvp = document.getElementById("pvp").value;
+  const pvm = document.getElementById("pvm").value;
+
+  if (!name) return alert("Nom requis");
+
+  characters.push({ name, image, pvp, pvm });
+
+  localStorage.setItem("chars", JSON.stringify(characters));
+
+  renderTier();
+  renderCharacters();
+
+  alert("Ajouté !");
 }
 
-function addToTeam(id) {
-  if (team.length >= 5) return;
-  const char = characters.find(c => c.id === id);
-  team.push(char);
-  render();
-}
-
-render();
+// INIT
+renderTier();
+renderCharacters();
