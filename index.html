@@ -75,12 +75,22 @@ function render(){
     div.innerHTML=`
       ${c.image ? `<img src="${c.image}">` : ''}
       ${c.name}
+      <br>
+      <button onclick="deleteChar(${i})">❌</button>
     `;
 
     pool.appendChild(div);
   });
 }
 
+function deleteChar(index){
+  if(!confirm("Supprimer ce personnage ?")) return;
+
+  chars.splice(index,1);
+  save();
+  render();
+}
+  
 function allowDrop(e){ e.preventDefault(); }
 
 function drop(e,tier){
