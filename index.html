@@ -8,7 +8,7 @@
 <body>
 
 <header>
-  <h1>Fairy Tail MOBA Guide</h1>
+  <h1>Fairy Tail Wizard Chronicle - Tier List</h1>
 </header>
 
 <div class="container">
@@ -16,28 +16,48 @@
     <button onclick="showPage('tier')">Tier List</button>
     <button onclick="showPage('teams')">Teams</button>
     <button onclick="showPage('characters')">Characters</button>
+    <button onclick="showPage('admin')">Admin</button>
   </nav>
 
   <main>
+
+    <!-- TIER LIST -->
     <section id="tier">
       <h2>Tier List</h2>
-      <div class="buttons">
-        <button onclick="setMode('pvp')">PvP</button>
-        <button onclick="setMode('pvm')">PvM</button>
-      </div>
+      <button onclick="setMode('pvp')">PvP</button>
+      <button onclick="setMode('pvm')">PvM</button>
       <div id="list"></div>
     </section>
 
+    <!-- TEAMS -->
     <section id="teams" class="hidden">
       <h2>Best Teams</h2>
       <div class="card">PvP: Natsu / Erza / Wendy</div>
       <div class="card">PvM: Erza / Wendy / Gray</div>
     </section>
 
+    <!-- CHARACTERS -->
     <section id="characters" class="hidden">
       <h2>Characters</h2>
       <div id="chars"></div>
     </section>
+
+    <!-- ADMIN -->
+    <section id="admin" class="hidden">
+      <h2>Admin - Ajouter personnage</h2>
+
+      <input id="name" placeholder="Nom du personnage">
+      <input id="image" placeholder="URL image">
+      <select id="pvp">
+        <option>S</option><option>A</option><option>B</option>
+      </select>
+      <select id="pvm">
+        <option>S</option><option>A</option><option>B</option>
+      </select>
+
+      <button onclick="addCharacter()">Ajouter</button>
+    </section>
+
   </main>
 </div>
 
